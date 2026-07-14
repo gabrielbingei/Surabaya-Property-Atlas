@@ -1,0 +1,607 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Surabaya Residential Atlas — tiers, market, migration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#0B1A21; --ink2:#0F242D; --panel:#132F3A; --line:#20505E; --line2:#2E6E7E;
+    --paper:#E4EEEC; --muted:#8CADB4; --muted2:#5E838C;
+    --v1:#3D7A8A; --v2:#5CA07C; --v3:#CBB253; --v4:#E08A3C; --v5:#E2543F;
+    --green:#2E6B4F; --future:#6FD3E0; --btg:#FFE7A3;
+    --serif:'Source Serif 4',Georgia,serif;
+    --cond:'Barlow Condensed',Impact,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--serif);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+  /* ---------- hero ---------- */
+  header{border-bottom:1px solid var(--line);background:
+     radial-gradient(1200px 400px at 20% -10%, #163B49 0%, transparent 60%),
+     radial-gradient(900px 400px at 90% 0%, #123441 0%, transparent 55%);}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted2)}
+  h1{font-family:var(--cond);font-weight:700;font-size:clamp(42px,7.2vw,86px);line-height:.92;letter-spacing:.005em;margin:14px 0 0;text-transform:uppercase}
+  h1 em{font-style:normal;color:var(--v3)}
+  .lede{font-size:clamp(17px,2vw,20px);max-width:62ch;color:#C9DBDA;margin:20px 0 0}
+  .hero-in{padding:46px 0 40px}
+  .coords{font-family:var(--mono);font-size:11px;color:var(--muted2);margin-top:26px;letter-spacing:.06em}
+
+  /* ---------- sections ---------- */
+  section{padding:64px 0;border-bottom:1px solid var(--line)}
+  h2{font-family:var(--cond);text-transform:uppercase;font-weight:600;font-size:clamp(26px,3.6vw,38px);letter-spacing:.04em;margin:0 0 6px;line-height:1.05}
+  h3{font-family:var(--cond);text-transform:uppercase;letter-spacing:.09em;font-size:16px;font-weight:600;color:var(--v3);margin:34px 0 10px}
+  .sub{color:var(--muted);max-width:70ch;margin:0 0 28px;font-size:16px}
+  p{max-width:74ch}
+  a{color:var(--v3)}
+
+  /* ---------- map ---------- */
+  .mapbox{border:1px solid var(--line);background:var(--ink2);border-radius:3px;overflow:hidden}
+  .maptop{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .legend{display:flex;flex-wrap:wrap;gap:6px}
+  .lg{font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:5px 9px;border:1px solid var(--line2);border-radius:2px;background:transparent;color:var(--paper);cursor:pointer;display:flex;align-items:center;gap:6px;transition:.15s}
+  .lg:hover{border-color:var(--paper)}
+  .lg .sw{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .lg[aria-pressed="false"]{opacity:.32}
+  .lg:focus-visible{outline:2px solid var(--future);outline-offset:2px}
+
+  .mapgrid{display:grid;grid-template-columns:1fr 300px}
+  @media(max-width:900px){.mapgrid{grid-template-columns:1fr}}
+  svg#map{display:block;width:100%;height:auto;background:
+      linear-gradient(180deg,#0d222b,#0a1a21);}
+  .side{border-left:1px solid var(--line);padding:18px;background:var(--ink2);min-height:260px}
+  @media(max-width:900px){.side{border-left:none;border-top:1px solid var(--line)}}
+  .side h4{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:22px;margin:2px 0 2px;line-height:1.05}
+  .side .kv{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:12px}
+  .side p{font-size:14.5px;color:#C6D9D8;max-width:none}
+  .chipline{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px}
+  .chip{font-family:var(--mono);font-size:10px;letter-spacing:.05em;padding:3px 7px;border:1px solid var(--line2);border-radius:2px;color:var(--muted)}
+  .side .price{font-family:var(--mono);font-size:12.5px;color:var(--v3);border-top:1px solid var(--line);padding-top:10px;margin-top:12px;line-height:1.7}
+
+  .era{display:flex;align-items:center;gap:14px;padding:14px 16px;border-top:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .era label{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2)}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;min-width:220px;height:2px;background:var(--line2);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--v3);border:2px solid var(--ink);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--v3);border:2px solid var(--ink);cursor:pointer}
+  #eraYear{font-family:var(--cond);font-size:30px;font-weight:700;letter-spacing:.02em;min-width:78px}
+  #eraNote{font-size:14px;color:var(--muted);flex-basis:100%;margin:0}
+
+  .zone{cursor:pointer;transition:opacity .18s}
+  .zlabel{font-family:var(--cond);font-size:11.5px;letter-spacing:.05em;fill:#DCE9E8;pointer-events:none;text-transform:uppercase}
+  .zlabel.sm{font-size:10px;fill:var(--muted)}
+  .coastline{fill:#0E2731;stroke:#2A5F6D;stroke-width:1.2}
+  .sea{fill:#0A1D26}
+  .roadline{stroke:#2F6675;stroke-width:1.1;fill:none;stroke-dasharray:5 4}
+  .roadlab{font-family:var(--mono);font-size:8.5px;fill:#4E7C88;letter-spacing:.1em}
+
+  /* ---------- tables ---------- */
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14.5px}
+  th{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted2);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:bottom}
+  td{padding:11px 10px;border-bottom:1px solid #17323C;vertical-align:top}
+  td:first-child{white-space:nowrap}
+  tbody tr:hover{background:#0F2630}
+  .tierdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  .num{font-family:var(--mono);font-size:13px;white-space:nowrap;color:#D8E6E4}
+  .tblscroll{overflow-x:auto}
+
+  /* ---------- cards ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:26px}
+  .card{background:var(--ink2);padding:20px}
+  .card .big{font-family:var(--cond);font-size:40px;font-weight:700;line-height:1;color:var(--v3)}
+  .card .big.warn{color:var(--v5)}
+  .card .lab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted2);margin-top:8px}
+  .card .fine{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+  .callout{border-left:3px solid var(--v5);background:#16232A;padding:18px 20px;margin:30px 0;border-radius:0 3px 3px 0}
+  .callout h4{font-family:var(--cond);text-transform:uppercase;letter-spacing:.08em;font-size:15px;margin:0 0 8px;color:var(--v5)}
+  .callout p{margin:0;font-size:15px;color:#CFDDDC}
+  .callout.cool{border-left-color:var(--future)}
+  .callout.cool h4{color:var(--future)}
+
+  /* BTG bars */
+  .bars{margin-top:20px}
+  .bar{display:grid;grid-template-columns:190px 1fr 130px;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid #17323C}
+  @media(max-width:700px){.bar{grid-template-columns:130px 1fr;}.bar .val{grid-column:2;text-align:left;font-size:11px}}
+  .bar .nm{font-family:var(--cond);text-transform:uppercase;letter-spacing:.05em;font-size:14px}
+  .bar .track{height:9px;background:#12303A;position:relative;border-radius:1px}
+  .bar .fill{position:absolute;top:0;bottom:0;border-radius:1px}
+  .bar .val{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right}
+  .bar.hi .nm{color:var(--btg)}
+
+  ul.tight{padding-left:18px;max-width:74ch}
+  ul.tight li{margin-bottom:9px}
+  .who{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:24px}
+  .who .w{background:var(--ink2);padding:18px 20px}
+  .who .w h5{font-family:var(--cond);text-transform:uppercase;letter-spacing:.06em;font-size:17px;margin:0 0 4px}
+  .who .w .dest{font-family:var(--mono);font-size:10.5px;color:var(--v3);letter-spacing:.05em;margin-bottom:9px}
+  .who .w p{font-size:14px;color:#C3D5D4;margin:0;max-width:none}
+
+  footer{padding:44px 0 70px;color:var(--muted2);font-size:13px}
+  footer a{color:var(--muted)}
+  .foot-note{max-width:80ch}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <div class="wrap hero-in">
+    <div class="eyebrow">East Java &middot; Kota Surabaya &middot; residential geography</div>
+    <h1>Where Surabaya<br>keeps its <em>money</em></h1>
+    <p class="lede">A city that grew north to south, then jumped west, then filled in east. This atlas maps every residential band by land value, walks the city forward from the colonial <span style="color:#fff">wijkenstelsel</span> to the 2045 reclamation plans, prices the market honestly, and locates Bukit Telaga Golf inside it.</p>
+    <div class="coords">7&deg;15′S 112&deg;45′E &nbsp;·&nbsp; 326.81 km² &nbsp;·&nbsp; ~3.0 M in the city, ~10 M in the metro &nbsp;·&nbsp; compiled July 2026</div>
+  </div>
+</header>
+
+<!-- ============ MAP ============ -->
+<section id="map-sec">
+  <div class="wrap">
+    <h2>The map</h2>
+    <p class="sub">Circles are residential zones, sized by rough footprint and coloured by <strong>land value</strong>, not by class. Drag the era slider to watch the city's centre of gravity move. Click any zone for detail. Schematic geography — indicative positions, not a survey.</p>
+
+    <div class="mapbox">
+      <div class="maptop">
+        <div class="legend" id="legend"></div>
+        <div class="eyebrow" style="color:var(--muted)">click a zone →</div>
+      </div>
+
+      <div class="mapgrid">
+        <svg id="map" viewBox="0 0 1000 780" role="img" aria-label="Schematic map of Surabaya residential zones by land value"></svg>
+        <aside class="side" id="side">
+          <h4 id="s-name">Bukit Telaga Golf</h4>
+          <div class="kv" id="s-kv">CitraLand · Sambikerep–Lakarsantri · West</div>
+          <div class="chipline" id="s-chips"></div>
+          <p id="s-note">Golf- and lake-frontage cluster inside CitraLand, and the reason you're reading this. Select any other zone to compare it.</p>
+          <div class="price" id="s-price"></div>
+        </aside>
+      </div>
+
+      <div class="era">
+        <label for="eraSlider">Era</label>
+        <span id="eraYear">2026</span>
+        <input id="eraSlider" type="range" min="0" max="6" step="1" value="5" aria-label="Era">
+        <p id="eraNote"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TIER LADDER ============ -->
+<section id="tiers">
+  <div class="wrap">
+    <h2>The ladder, and why each rung is where it is</h2>
+    <p class="sub">Five bands. The sorting logic in Surabaya is unusually legible: <strong>who built it, when, and what school and hospital it sits next to.</strong> Prestige here is not old-money geography the way Menteng is in Jakarta — it is developer geography.</p>
+
+    <div class="tblscroll">
+    <table>
+      <thead><tr><th style="width:120px">Band</th><th>Where</th><th>Why it sits there</th><th style="width:150px">Land, indicative</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tierdot" style="background:var(--v5)"></span><strong>Prime</strong></td>
+          <td>Graha Famili · Bukit Darmo Golf · Pakuwon Indah / Villa Bukit Mas · <strong>CitraLand core incl. Bukit Telaga Golf</strong> · Pakuwon City's Grand Island &amp; Long Beach · the Darmo–Diponegoro colonial villa belt</td>
+          <td>Golf frontage, gated one-gate clusters, underground utilities and private water treatment, international schools (Ciputra, Cita Hati, SIS, Petra), private hospitals (National, Ciputra, Mitra Keluarga). The Darmo belt is different: it is scarcity — 1916 Dutch garden-suburb villas that cannot be replicated.</td>
+          <td class="num">Rp 12–25 jt/m²<br><span style="color:var(--muted2)">Darmo arterials 40–80</span></td>
+        </tr>
+        <tr>
+          <td><span class="tierdot" style="background:var(--v4)"></span><strong>Upper</strong></td>
+          <td>Dharmahusada Indah · Manyar Kertoarjo · Klampis / Wisma Permai · Galaxy Bumi Permai / Araya / Regency 21 · Kertajaya Indah · most of Pakuwon City · HR Muhammad–Mayjend Sungkono corridor · Dian Istana · Royal Residence</td>
+          <td>The professional belt. Doctors and academics east (Unair, RSUD Dr. Soetomo, ITS); business and finance west along Sungkono. Mature, walkable to malls, but plots are smaller and the estates are 20–40 years old.</td>
+          <td class="num">Rp 10–18 jt/m²</td>
+        </tr>
+        <tr>
+          <td><span class="tierdot" style="background:var(--v3)"></span><strong>Middle</strong></td>
+          <td>Mulyosari · Sutorejo · Kalijudan · Rungkut · Jemursari · Margorejo · Tenggilis · Gayungan / Ketintang · Darmo Permai / Darmo Satelit / Kupang Indah · Taman Puspa Raya · Bukit Palma · Gunung Anyar · the Sidoarjo commuter belt (Pondok Tjandra, Delta Sari, Rewwin)</td>
+          <td>Where Surabaya's actual middle class lives. Darmo Permai and Kupang Indah are the <em>ancestors</em> of the west — the 1970s–80s first suburban wave, now ageing and being traded on land value rather than building value.</td>
+          <td class="num">Rp 6–14 jt/m²</td>
+        </tr>
+        <tr>
+          <td><span class="tierdot" style="background:var(--v2)"></span><strong>Working</strong></td>
+          <td>Wonokromo / Jagir / Ngagel · Sawahan · Tegalsari · Kedungdoro · Tandes / Manukan / Balongsari · Karangpilang / Kebraon · Siwalankerto · Krembangan / Dupak · Pecinan &amp; Ampel shophouse quarters</td>
+          <td>Dense self-built kampung plus the 1980s Perumnas-era mass estates. Sawahan, Wonokromo and Tegalsari carry some of the city's highest poverty counts despite sitting close to the centre — proximity here buys you nothing.</td>
+          <td class="num">Rp 5–11 jt/m²</td>
+        </tr>
+        <tr>
+          <td><span class="tierdot" style="background:var(--v1)"></span><strong>Low-income &amp; informal</strong></td>
+          <td>Semampir · Wonokusumo · Ujung · Sidotopo · Bulak Banteng · Tanah Kali Kedinding · Kenjeran / Bulak coast · Benowo / Sememi fringe · scattered riverbank and rail-margin settlements</td>
+          <td>The north coast. Port labour, fishing, scrap trade, informal work; the RTRW's list of <em>kumuh</em> kelurahan skews heavily here. Tambaksari records the largest absolute poor population in the city; Semampir is the third densest kecamatan. Rehousing runs through rusunawa (Sumur Welut, Dukuh Menanggal, Penjaringan Sari, Keputih).</td>
+          <td class="num">Rp 3–8 jt/m²</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>The historical spine, in four moves</h3>
+    <ul class="tight">
+      <li><strong>1743–1900 — the river mouth.</strong> Everything begins at the Kalimas estuary. The Dutch <em>wijkenstelsel</em> (from 1843) hard-zones the city by race: European quarter west of the Red Bridge, Chinatown immediately east of it, the Arab quarter around Sunan Ampel's mosque to the north, Javanese and Madurese kampung filling the gaps. Chinese residents were legally barred from living or working outside their quarter until 1918. Kota Lama's four quarters — European, Chinese, Arab, Malay — are a legible fossil of this, and were restored and reopened as a tourist precinct in July 2024.</li>
+      <li><strong>1900–1942 — the southward garden suburb.</strong> The Dutch move their own elite out of the fetid port. Ketabang is master-planned by Cosman Citroen from 1916; the Darmo villa district appears in the same period. The city's prestige axis rotates from the river to Jalan Raya Darmo. This is the last time the <em>state</em> decides where the rich live.</li>
+      <li><strong>1970s–1980s — the first suburbs.</strong> Darmo Permai, Darmo Satelit, Kupang Indah west; Dharmahusada Indah, Manyar and Galaxy east; Perumnas blocks at Manukan and Tandes. Private developers take over, and the sorting logic becomes "which estate did you buy into."</li>
+      <li><strong>1990s–now — the western land grab, then the eastern fill-in.</strong> Between 1990 and 1995 three groups carve up the western rice fields: Graha Famili (280 ha, 1991), Bukit Darmo Golf (126 ha, 1991), Pakuwon Indah (400 ha, 1993) and Ciputra's CitraRaya/CitraLand (a 2,000–2,500 ha masterplan, 1993). Ciputra opens the golf course in 1995 and builds a city around it. The east answers with Pakuwon City on the old Laguna Indah tambak. Surabaya's elite geography today is essentially the map those four permits drew.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ MARKET ============ -->
+<section id="market">
+  <div class="wrap">
+    <h2>Market analysis</h2>
+    <p class="sub">There is a gap between what the portals' asking-price data says and what the brokerage copy says. Read both.</p>
+
+    <div class="cards">
+      <div class="card"><div class="big">Rp 2.87 M</div><div class="lab">Median asking price, houses, Surabaya, June 2026</div><div class="fine">Rumah123. "M" = miliar. Month-on-month: flat.</div></div>
+      <div class="card"><div class="big warn">+0.21%</div><div class="lab">Residential price index, q/q, Q4 2025</div><div class="fine">Bank Indonesia SHPR/IHPR for Surabaya. That is roughly <em>zero</em> in real terms.</div></div>
+      <div class="card"><div class="big warn">−12.5%</div><div class="lab">Demand-supply ratio, June 2026</div><div class="fine">~71,700 house listings, supply down 3.8% m/m but buyer enquiries down 12.5%. Supply exceeds demand — a negotiating market.</div></div>
+      <div class="card"><div class="big">8–12%</div><div class="lab">Annual growth claimed by agents in growth corridors</div><div class="fine">West Surabaya marketing puts it at 10–15% y/y. Treat as a land-only, frontier-only number.</div></div>
+    </div>
+
+    <div class="callout">
+      <h4>Reconcile these before you buy anything</h4>
+      <p>A central bank index near zero and brokers quoting double-digits are not both describing the same asset. What is actually happening: <strong>primary (developer) prices are administered upward</strong> — Ciputra and Pakuwon control release volumes and raise list prices each phase — while <strong>secondary asking prices are sticky and transacting below ask.</strong> Capital gain in Surabaya is a <em>land</em> story concentrated on newly-opened frontier (JLLB in the west, OERR in the east), not a building story in mature estates. And note that Rp 10 M+ landed product has a thin buyer pool: several listings above are visibly cut by Rp 5 M and still sitting.</p>
+    </div>
+
+    <h3>Land, by band</h3>
+    <div class="tblscroll">
+    <table>
+      <thead><tr><th>Area</th><th>Land, Rp/m²</th><th>Typical house</th><th>What you're actually buying</th></tr></thead>
+      <tbody>
+        <tr><td>Tunjungan / Darmo / Blauran arterials</td><td class="num">40–80 jt</td><td class="num">n/a — commercial</td><td>Scarcity and CBD frontage. Cited as rising 10–20%/yr; almost none of it is residential turnover.</td></tr>
+        <tr><td><strong>CitraLand — Bukit Telaga Golf</strong></td><td class="num">8.9–14 jt</td><td class="num">Rp 9.3 M – 22 M</td><td>Golf/lake frontage, 20 m road reserves, 180–670 m² plots. Titles often PPJB/HGB, not SHM — check.</td></tr>
+        <tr><td>Graha Famili</td><td class="num">~20–26 jt</td><td class="num">Rp 11 M+</td><td>Privacy. The most closed of the big western estates, and the one that trades on address alone.</td></tr>
+        <tr><td>Pakuwon Indah / Wisata Bukit Mas</td><td class="num">15–25 jt</td><td class="num">Rp 4 M – 15 M</td><td>Density and convenience: Pakuwon Mall, Lenmarc, Ciputra World at the doorstep.</td></tr>
+        <tr><td>Pakuwon City (east)</td><td class="num">~16 jt</td><td class="num">Rp 1.95 M – 12.5 M</td><td>Widest ladder in the city — a Rp 2 M starter cluster and a Rp 12 M villa share a gate. Sea breeze off the Madura Strait is genuinely part of the pitch.</td></tr>
+        <tr><td>Dharmahusada Indah / Manyar</td><td class="num">~13.5 jt</td><td class="num">Rp 1.2 M – 8 M</td><td>Walk to Unair and Galaxy Mall. Old stock; increasingly bought for the land.</td></tr>
+        <tr><td>Citraland outer / Wiyung</td><td class="num">12.5–20 jt</td><td class="num">Rp 1.5 M – 3.5 M</td><td>The upgrader belt. Best liquidity in the west.</td></tr>
+        <tr><td>Kebraon / Karangpilang / Benowo</td><td class="num">6–10 jt</td><td class="num">Rp 900 jt – 1.5 M</td><td>Entry. The most aggressive land-value upside in the city if JLLB completes as planned — and the most exposed if it doesn't.</td></tr>
+        <tr><td>Gunung Anyar / Medokan (east frontier)</td><td class="num">7–12 jt</td><td class="num">Rp 1 M – 2 M</td><td>The OERR bet. Cheaper than the west, higher percentage rental yield, thinner resale market.</td></tr>
+        <tr><td>Citywide average listing</td><td class="num">~17.5 jt</td><td class="num">Rp 2.87 M median</td><td>Skewed by commercial land. Don't anchor on it.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Segment read</h3>
+    <ul class="tight">
+      <li><strong>Landed &gt; vertical, still.</strong> Surabaya has never been a strong apartment market — absorption is slow and capital gain thin. Apartments make sense here as <em>rental yield</em> plays near campuses and along MERR, not as appreciation plays.</li>
+      <li><strong>Rental yield inverts the price map.</strong> The east and south student belts (Keputih, Gebang, Sukolilo, Siwalankerto, Ketintang) and the industrial fringes (Rungkut/SIER) throw off the best percentage yields, because the entry price is low and the tenant pool is bottomless. The west's Rp 10 M houses are capital-preservation assets with weak yields, partly let to a small expat pool.</li>
+      <li><strong>Ruko is the quiet Surabaya trade.</strong> Trading-city DNA: shophouses generate cash flow and are the default asset of the Chinese-Indonesian business class. G-Walk, District 9, One Arcade, San Antonio.</li>
+      <li><strong>Liquidity asymmetry.</strong> West resells fast because the buyer pool is broad and pre-formed. East appreciates faster off a lower base but takes longer to exit. That is the actual trade-off, stripped of the marketing.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ BTG ============ -->
+<section id="btg">
+  <div class="wrap">
+    <h2>Where Bukit Telaga Golf actually sits</h2>
+    <p class="sub">Short answer: <strong>top tier, but not the top of the city.</strong> It is a premium golf-and-lake cluster inside CitraLand, in Sambikerep–Lakarsantri, West Surabaya — Tier 1 within a Tier 1 township, which is a different thing from being Surabaya's single most expensive address.</p>
+
+    <div class="bars" id="bars"></div>
+
+    <h3>The case for it</h3>
+    <ul class="tight">
+      <li><strong>Frontage.</strong> Golf and lake views are the scarce good inside a 2,500 ha masterplan. Ciputra Golf — 100 ha, 27 holes, open since November 1995, East Java's largest and the city's only night golf — is 2–4 minutes away, and BTG plots sit on it.</li>
+      <li><strong>Infrastructure that the rest of the city doesn't have.</strong> CitraLand runs underground utilities and its own water treatment plant. In a city with Surabaya's water and drainage record, that is a real, not cosmetic, premium.</li>
+      <li><strong>The school-and-hospital lock-in.</strong> Sekolah Ciputra (IB), Cita Hati West, Surabaya Intercultural School, Universitas Ciputra; National Hospital and Ciputra Hospital. For the buyer profile this estate is aimed at, these are not amenities — they are the reason for the purchase.</li>
+      <li><strong>Community density.</strong> CitraLand houses roughly 13,000 households / ~44,000 residents across ~1,100 ha built of the 2,500 ha plan, and about 12.5% of its stock is above Rp 10 M. There is a critical mass of peers, which sustains resale.</li>
+      <li><strong>The infrastructure catalyst.</strong> The Jalur Lingkar Luar Barat (JLLB) and the Radial Road run through CitraLand's flank and are the single largest identified upside driver for west-side land.</li>
+    </ul>
+
+    <h3>The case against it</h3>
+    <ul class="tight">
+      <li><strong>The developer is also your competitor.</strong> Ciputra still has ~1,400 ha unbuilt and keeps launching golf-adjacent clusters (Bukit Golf Internasional, Crystal Golf, Woodland, Raffles Garden, South Emerald Mansion). Every new phase competes with your resale. This is the structural cap on secondary appreciation inside any large Ciputra estate.</li>
+      <li><strong>Title.</strong> Many BTG listings are <strong>PPJB or HGB, not SHM.</strong> That is normal in a developer township and normally fine, but it is not the same asset as a freehold Darmo villa, and it prices differently.</li>
+      <li><strong>Thin pool above Rp 10 M.</strong> A Rp 22 M house in Surabaya has a buyer list you could write on one page.</li>
+      <li><strong>Prestige is contested.</strong> Ask an old Surabaya family and the answer is Darmo. Ask a 2015-vintage entrepreneur and it's CitraLand. Ask someone who wants to be unseen and it's Graha Famili. BTG wins the third-place argument convincingly and does not win the first two.</li>
+    </ul>
+
+    <div class="callout cool">
+      <h4>Verdict</h4>
+      <p>BTG is the strongest <em>lifestyle-and-infrastructure</em> proposition in Surabaya's Rp 9–22 M band, and a weaker <em>capital-gain</em> proposition than an equivalent sum deployed on frontier land along the JLLB or OERR. Buy it to live in it. If you want the appreciation, the money goes to Wiyung/Kebraon in the west or Gunung Anyar/Medokan in the east — and you accept a worse life for a better number.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMOGRAPHICS ============ -->
+<section id="people">
+  <div class="wrap">
+    <h2>Who lives where, and who is arriving</h2>
+    <p class="sub">Surabaya's residential map is not only a price map. It is also an ethnic and religious map, and has been since 1843 — the difference is that the sorting is now voluntary and runs on schools rather than on colonial statute.</p>
+
+    <div class="cards">
+      <div class="card"><div class="big">83.7%</div><div class="lab">Javanese</div><div class="fine">Distributed everywhere. The default.</div></div>
+      <div class="card"><div class="big">7.5%</div><div class="lab">Madurese</div><div class="fine">Heavily concentrated north: Kenjeran, Semampir, Pabean Cantian. Three generations deep, since independence.</div></div>
+      <div class="card"><div class="big">7.25%</div><div class="lab">Chinese-Indonesian</div><div class="fine">Now overwhelmingly west and south. The prime mover in the elite housing market.</div></div>
+      <div class="card"><div class="big">2.0%</div><div class="lab">Arab-Indonesian</div><div class="fine">Ampel and Nyamplungan, around the 15th-c. mosque.</div></div>
+    </div>
+    <p style="font-size:13.5px;color:var(--muted2);margin-top:12px">Shares per PKSPL-IPB / BPS-derived figures. One widely-circulated source puts the Chinese-Indonesian share as high as 25.5%; that figure has no clear provenance and I'd discount it. Religion, 2019 BPS: 85.5% Muslim, 12.8% Christian (8.9% Protestant, 3.9% Catholic).</p>
+
+    <h3>The single most important sorting fact</h3>
+    <p>Surabaya's Chinese-Indonesian community was legally confined to the Pecinan east of the Red Bridge until 1918. Over the following century it moved — first to the centre, then decisively <strong>west and south.</strong> Today the western elite estates and their entire supporting institutional apparatus (Petra, Cita Hati, Sekolah Ciputra, SIS, Universitas Ciputra, National Hospital, the GBI and Catholic parishes inside CitraLand) exist substantially <em>because</em> of that community's demand. The 12.8% Christian minority is disproportionately located in the same estates. If you want to understand why Surabaya's money went west rather than staying in Darmo, this — not the golf course — is the causal thread. The golf course is what the demand bought.</p>
+
+    <h3>Where in-migrants go, and why</h3>
+    <div class="who">
+      <div class="w"><h5>Students</h5><div class="dest">→ Keputih, Gebang, Sukolilo, Klampis, Siwalankerto, Ketintang</div><p>ITS, Unair, UNESA, Petra, Ubaya, UWK, Universitas Ciputra. The <em>kost</em> economy. Highest rental yields in the city, lowest capital gain. Turns over every four years and never empties.</p></div>
+      <div class="w"><h5>Madurese in-migrants</h5><div class="dest">→ Kenjeran, Semampir, Bulak, Sidotopo</div><p>Kin networks, fishing, scrap and loak trade, the warung Madura franchise. Arrives via Suramadu, settles where family already is. This is chain migration, not price-shopping.</p></div>
+      <div class="w"><h5>Industrial &amp; informal labour</h5><div class="dest">→ Rungkut/SIER fringe, Margomulyo, Tandes, Krembangan, Karangpilang</div><p>Follows the estates: SIER in the east, the port-and-warehouse belt in the north-west. Housed in contract-kost and dense kampung; historically the source of the riverbank and rail-margin settlements the city has been clearing into rusunawa.</p></div>
+      <div class="w"><h5>Young middle-class families</h5><div class="dest">→ Wiyung, Kebraon, Bukit Palma, Gunung Anyar, and across the border</div><p>Priced out of everything inside the ring. Rp 900 jt–2 M product, KPR instalments in the Rp 4–6 jt range. This cohort is the reason satellite imagery shows the sharpest 2010–2020 land-use change at the <strong>Sidoarjo and Gresik borders</strong>, not inside the city.</p></div>
+      <div class="w"><h5>Professionals &amp; medics</h5><div class="dest">→ Dharmahusada Indah, Manyar, Galaxy, Mulyosari</div><p>Proximity to Unair, RSUD Dr. Soetomo, ITS. The most stable, least speculative housing sub-market in Surabaya.</p></div>
+      <div class="w"><h5>Business families &amp; the wealthy</h5><div class="dest">→ CitraLand, Graha Famili, Pakuwon Indah, Pakuwon City</div><p>Schools, hospitals, security, community, and the ability to build a 500–1,200 m² house — which is impossible on a colonial plot in Darmo without a heritage fight. See above.</p></div>
+      <div class="w"><h5>Expatriates</h5><div class="dest">→ Pakuwon Indah, Graha Famili, CitraLand, Sungkono apartments</div><p>A small pool by Jakarta standards, tied to SIS and the international schools. Matters more for rental support in the west than for total demand.</p></div>
+      <div class="w"><h5>Outbound: the city itself</h5><div class="dest">→ Sidoarjo, Gresik</div><p>Surabaya's own population is close to flat. The metro (Gerbangkertosusila) is where the growth is. Pondok Tjandra, Delta Sari, Rewwin, Buduran, Driyorejo, Menganti — the commuter belt is where the next million people will actually live.</p></div>
+    </div>
+
+    <p style="margin-top:26px">The historical scale of this: as of 2015, roughly <strong>1.04 million lifetime in-migrants</strong> — about 37% of the city's population — had moved into Surabaya. The city has an unusually direct policy grip on it (residency checks, targeted relocation into rusunawa, sticker-based poverty registration), which is why its slum footprint has shrunk in a way Jakarta's has not, even as its poverty is still concentrated in the same kecamatan it was in 2004: Tambaksari, Sawahan, Wonokromo, Semampir, Tegalsari.</p>
+  </div>
+</section>
+
+<!-- ============ FUTURE ============ -->
+<section id="future">
+  <div class="wrap">
+    <h2>2030–2045: where the next map gets drawn</h2>
+    <p class="sub">Three infrastructure lines and one very contested pile of sand.</p>
+
+    <h3>1. JLLB + Radial Road — the western frontier</h3>
+    <p>The Jalur Lingkar Luar Barat and the Radial Road toward HR Muhammad are what turn CitraLand's remaining ~1,400 unbuilt hectares, plus Benowo, Pakal, Sememi and Tandes, from periphery into product. CitraLand is explicit that it will extend <strong>west and north</strong> from its current footprint. This is the highest-confidence forecast on this page: the west keeps going, and the entry-level west (Kebraon, Harvest Link, Bukit Palma, Taman Puspa Raya) is where the percentage gains are.</p>
+
+    <h3>2. OERR / JLLT — the eastern frontier</h3>
+    <p>The eastern outer ring road opens Gunung Anyar, Medokan Ayu, Rungkut Menanggal and the southern Sukolilo tambak. It is the reason Pakuwon City's own marketing has been promising an "eastern ring road" uplift for years. Cheaper base, higher percentage upside, thinner exit — and a flood-risk profile the DPRD has publicly warned about.</p>
+
+    <h3>3. Verticalisation of MERR and A. Yani</h3>
+    <p>Where the city grows without spreading. Apartment product along Ir. Soekarno (MERR) and the A. Yani frontage — Klaska Residence is the archetype. This is a rental-yield market attached to campuses and offices, and it should be underwritten as one.</p>
+
+    <h3>4. Surabaya Waterfront Land — the wildcard</h3>
+    <div class="callout">
+      <h4>Read this before you price anything east of Kenjeran</h4>
+      <p>SWL is a <strong>1,084–1,184 ha reclamation</strong> of four artificial islands off the Kenjeran–Pamurbaya coast, promoted by PT Granting Jaya (the Kenjeran Park group), valued around <strong>Rp 72 trillion</strong>, granted National Strategic Project (PSN) status in April 2024, and programmed over roughly 20 years — 15 of them just for reclamation and land maturation. The blocks include a maritime zone, a fisheries SEZ, and — the part that matters for this atlas — <strong>villa estate, apartments and ruko.</strong></p>
+    </div>
+    <p>And it is <em>legally unresolved</em>. It sits in coastal zones that Perda Kota Surabaya 12/2014 (RTRW 2014–2034) protects as mangrove and that East Java's Perda 10/2024 designates for ecosystem management, where reclamation is prohibited. The proponent went to the coordinating ministry precisely because the project does not conform to provincial spatial plan. The mayor has publicly questioned it; the previous mayor opposes it; fishing communities across twelve kelurahan from Bulak to Gunung Anyar Tambak have organised against it; ITS analysts have called the PSN designation premature and noted PSN status can be revoked. As of 2026 the marine affairs ministry is still evaluating its marine spatial conformity.</p>
+    <p><strong>How to hold this:</strong> as a live option, not a plan. If SWL proceeds, the east coast is re-rated and Pakuwon City/Kenjeran becomes waterfront-adjacent rather than edge-of-city. If it is cancelled or stalls — the base case on a 20-year build with this much legal friction — nothing changes, except that some people will have paid frontier prices for land whose story depended on it. Do not underwrite east-coast land on the assumption SWL happens.</p>
+
+    <h3>The risk register, honestly</h3>
+    <ul class="tight">
+      <li><strong>The index is flat.</strong> +0.21% q/q and a −12.5% demand-supply ratio are not the numbers of a hot market. Surabaya in mid-2026 is a buyer's market with a seller's narrative.</li>
+      <li><strong>Luxury landed oversupply in the west.</strong> Ciputra's land bank <em>is</em> the supply curve. It caps your resale.</li>
+      <li><strong>Flood and rob.</strong> North and east coast, and any drainage downstream of a reclamation.</li>
+      <li><strong>Title.</strong> PPJB / HGB is the norm in townships. Price it accordingly; don't compare it to SHM.</li>
+      <li><strong>Concentration.</strong> Two developers — Ciputra and Pakuwon — set the price of prestige in this city. That is a governance risk as much as a market one.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-note">
+    <p><strong>Sources &amp; honesty notes.</strong> Prices are from mid-2026 listing data (Rumah123, 99.co, Brighton, Xavier Marks, PropNex, agent listings) and are <em>asking</em> prices — transaction prices are lower, often materially. The index figures are Bank Indonesia's SHPR/IHPR for Surabaya (Q4 2025) and Rumah123's Surabaya median (June 2026). Demographic shares are BPS/PKSPL-IPB derived; the ethnic breakdown is approximate and contested. Zone boundaries and the map geometry here are <strong>schematic</strong> — they show relationships and rough position, not surveyed borders, and should not be used for any legal or transactional purpose. The RTRW cited is Perda Kota Surabaya 12/2014 (2014–2034) plus East Java Perda 10/2024; a revised city RTRW may supersede parts of this. Verify title, zoning and flood history on any specific plot before committing money.</p>
+  </div>
+</footer>
+
+<script>
+/* ---------------- data ---------------- */
+const V = {1:'var(--v1)',2:'var(--v2)',3:'var(--v3)',4:'var(--v4)',5:'var(--v5)'};
+const VNAME = {1:'Low-income / informal',2:'Working',3:'Middle',4:'Upper',5:'Prime'};
+
+// v = land-value band 1..5 | g = green/conservation | f = future
+const Z = [
+ // ---- NORTH ----
+ {n:'Tanjung Perak / Ujung', lat:-7.203, x:112.723, v:1, r:1.5, from:1743, w:'North · Pabean Cantian–Semampir', land:'Rp 4–9 jt/m²', house:'—', note:'Indonesia\'s second port. Labour housing, warehousing, and the densest low-income kampung in the city. Ujung and Wonokusumo are on every kumuh list going back to the 2004 RTRW.'},
+ {n:'Kota Lama (European Zone)', x:112.735, lat:-7.234, v:3, r:0.7, from:1743, w:'North · Krembangan–Pabean Cantian', land:'heritage', house:'—', note:'The original city, west of the Red Bridge. Restored and relaunched as a heritage precinct in July 2024. Effectively non-residential now — this is where Surabaya keeps its past, not its people.'},
+ {n:'Pecinan / Kembang Jepun', x:112.740, lat:-7.237, v:2, r:0.8, from:1743, w:'North · Pabean Cantian', land:'Rp 8–15 jt/m²', house:'shophouse', note:'Chinatown. Chinese residents were legally barred from living outside these alleys until 1918. Shophouse stock, still commercially alive (Kya-Kya), but the community\'s wealth has long since relocated west and south.'},
+ {n:'Ampel (Arab Quarter)', x:112.744, lat:-7.229, v:2, r:0.8, from:1743, w:'North · Semampir', land:'Rp 7–13 jt/m²', house:'—', note:'Built around Sunan Ampel\'s 15th-century mosque. Arab-Indonesian core, surrounded by a Madurese-majority hinterland. Pilgrimage economy.'},
+ {n:'Semampir / Wonokusumo / Sidotopo', x:112.752, lat:-7.228, v:1, r:1.6, from:1900, w:'North · Semampir', land:'Rp 3–7 jt/m²', house:'Rp 300–700 jt', note:'Third-densest kecamatan in Surabaya (~180,000 people). Narrow gangs, high kost occupancy by migrant workers, documented kumuh in Wonokusumo and Ujung. Poorest band on this map.'},
+ {n:'Kenjeran / Bulak / Bulak Banteng', x:112.790, lat:-7.230, v:1, r:1.7, from:1900, w:'North-east · Kenjeran–Bulak', land:'Rp 4–9 jt/m²', house:'Rp 400 jt–1 M', note:'Fishing coast at the foot of Suramadu. Madurese-dominant, three generations settled. Bulak Banteng is the densest kelurahan in Kenjeran and a long-standing kumuh site.'},
+ {n:'Krembangan / Dupak / Perak', x:112.717, lat:-7.240, v:2, r:1.4, from:1900, w:'North-west · Krembangan', land:'Rp 5–10 jt/m²', house:'Rp 500 jt–1.2 M', note:'Port-and-warehouse belt. Kampung 1001 Malam lived under the Dupak toll flyover here until the city cleared it into Rusunawa Sumur Welut in 2022.'},
+ {n:'Pantai Mentari / Grand Kenjeran', x:112.797, lat:-7.246, v:3, r:0.8, from:2010, w:'North-east · Bulak', land:'Rp 8–14 jt/m²', house:'Rp 1.5–3 M', note:'A middle-class gated pocket dropped into the coastal kampung. The clearest small example of Surabaya\'s pattern: developer estates sitting directly against informal settlement, sharing nothing.'},
+
+ // ---- CENTRE ----
+ {n:'Ketabang / Genteng', x:112.746, lat:-7.259, v:4, r:1.0, from:1900, w:'Centre · Genteng', land:'Rp 30–60 jt/m²', house:'heritage stock', note:'Master-planned by Cosman Citroen from 1916 as the Dutch administrative-residential quarter. City Hall sits here. Now mostly CBD; the residential fabric is heritage remnant.'},
+ {n:'Tunjungan / Embong Kaliasin', x:112.738, lat:-7.256, v:5, r:1.0, from:1900, w:'Centre · Genteng–Tegalsari', land:'Rp 40–80 jt/m²', house:'—', note:'The commercial spine. Land here is the most expensive in East Java and almost none of it changes hands as housing. Included because it anchors the value ramp.'},
+ {n:'Darmo / Diponegoro / Dr. Soetomo', x:112.735, lat:-7.284, v:5, r:1.4, from:1916, w:'Centre-south · Tegalsari–Wonokromo', land:'Rp 40–80 jt/m² (arterial)', house:'Rp 8 M – 40 M+', note:'The 1916 European garden suburb. Big colonial villas on plots that can never be replicated. This is Surabaya\'s <em>old</em> prestige — scarcity-priced, heritage-constrained, and unbuildable-on in the way a new-money buyer wants. Which is exactly why the money went west.'},
+ {n:'Sawahan / Kedungdoro / Tegalsari', x:112.725, lat:-7.268, v:2, r:1.7, from:1900, w:'Centre-west', land:'Rp 6–12 jt/m²', house:'Rp 700 jt–1.5 M', note:'Second-densest kecamatan; among the highest poverty counts in the city despite sitting 2 km from Tunjungan. Central location buys nothing here.'},
+
+ // ---- WEST ----
+ {n:'Darmo Permai / Darmo Satelit / Kupang Indah', x:112.697, lat:-7.272, v:3, r:1.5, from:1975, w:'West · Dukuh Pakis–Sukomanunggal', land:'Rp 12–20 jt/m²', house:'Rp 2 M – 4 M', note:'The first western suburb, 1970s–80s. The ancestor of everything else on this side of the map. Ageing stock now traded largely on land value; the classic upgrader\'s starting point before CitraLand.'},
+ {n:'HR Muhammad / Mayjend Sungkono', x:112.708, lat:-7.290, v:5, r:1.1, from:1990, w:'West · Dukuh Pakis', land:'Rp 25–45 jt/m²', house:'high-rise', note:'The western CBD. Ciputra World, Lenmarc, the apartment towers. Where the west\'s money works rather than sleeps.'},
+ {n:'Graha Famili', x:112.686, lat:-7.296, v:5, r:1.1, from:1991, w:'West · Dukuh Pakis–Wiyung', land:'Rp 20–26 jt/m²', house:'Rp 11 M+', note:'280 ha, 1991. The most private and most closed of the western estates. If Surabaya has an address that trades on the name alone, it is this one — and it is BTG\'s main rival at the top of the western market.'},
+ {n:'Bukit Darmo Golf', x:112.681, lat:-7.288, v:5, r:0.9, from:1991, w:'West · Dukuh Pakis', land:'Rp 18–25 jt/m²', house:'Rp 4 M – 12 M', note:'126 ha, 1991. The <em>other</em> golf estate — closer in, older, denser, and often confused with Bukit Telaga Golf. It isn\'t the same place, and it isn\'t the same product.'},
+ {n:'Pakuwon Indah / Villa Bukit Mas', x:112.676, lat:-7.291, v:5, r:1.3, from:1993, w:'West · Dukuh Pakis–Wiyung', land:'Rp 15–25 jt/m²', house:'Rp 4 M – 15 M', note:'400 ha, 1993. Pakuwon\'s western answer to Ciputra: denser, more urban, mall-anchored (Pakuwon Mall, Supermall). You trade CitraLand\'s space and greenery for walkable convenience.'},
+ {n:'CitraLand (core)', x:112.652, lat:-7.288, v:5, r:2.6, from:1993, w:'West · Sambikerep–Lakarsantri', land:'Rp 9–20 jt/m²', house:'Rp 1.7 M – 22 M', note:'The 2,500 ha masterplan (~1,100 ha built, 43 clusters, ~13,000 households / 44,000 residents). "The Singapore of Surabaya" — Ciputra\'s phrase, and the most successful piece of place-branding in Indonesian real estate. Underground utilities, own water treatment, its own university, schools, hospital, market, and a Merlion.'},
+ {n:'BUKIT TELAGA GOLF', x:112.6455, lat:-7.2885, v:5, r:0.75, from:2010, w:'West · inside CitraLand · Sambikerep–Lakarsantri', land:'Rp 8.9–14 jt/m²', house:'Rp 9.3 M – 22 M', note:'Golf- and lake-frontage cluster on the Ciputra Golf course (100 ha, 27 holes, opened Nov 1995). Plots 180–670 m², 20 m road reserves, houses to 1,200 m². Listings sit on PPJB/HGB more often than SHM. Tier 1 <em>within</em> a Tier 1 township — top of the ladder, not the top of the city.', btg:true},
+ {n:'Wiyung / Dian Istana / Royal Residence', x:112.678, lat:-7.322, v:3, r:1.6, from:2000, w:'West-south · Wiyung', land:'Rp 10–16 jt/m²', house:'Rp 1.5 M – 3.5 M', note:'The upgrader belt, and the best liquidity in the west. Close enough to the elite estates to borrow their schools and hospitals without paying their land price.'},
+ {n:'Taman Puspa Raya / Bukit Palma / Grand Harvest', x:112.640, lat:-7.265, v:3, r:1.4, from:2010, w:'West · Sambikerep–Benowo', land:'Rp 8–13 jt/m²', house:'Rp 900 jt – 2 M', note:'The entry level of the west. Where a first-time buyer actually gets into the CitraLand ecosystem — usually at the edge of it, with a KPR instalment around Rp 4–6 jt.'},
+ {n:'Kebraon / Karangpilang / Waru Gunung', x:112.690, lat:-7.340, v:2, r:1.5, from:1985, w:'South-west · Karangpilang', land:'Rp 6–10 jt/m²', house:'Rp 900 jt – 1.5 M', note:'Industrial south-west. Cheap, well-connected to the Gunungsari toll, and — with JLLB — carrying the most aggressive land-value upside on this map. Also the most exposed if JLLB slips.'},
+ {n:'Tandes / Manukan / Balongsari', x:112.665, lat:-7.253, v:2, r:1.5, from:1980, w:'West-north · Tandes', land:'Rp 6–11 jt/m²', house:'Rp 700 jt – 1.4 M', note:'The Perumnas-era mass housing wave. Dense, functional, ageing, and squeezed between the Margomulyo industrial belt and the new west.'},
+ {n:'Benowo / Pakal / Sememi', x:112.622, lat:-7.240, v:1, r:1.8, from:1990, w:'West-north · Benowo–Pakal', land:'Rp 4–8 jt/m²', house:'Rp 500 jt – 1 M', note:'The far west periphery. Rusunawa, low-cost estates, and the last cheap land inside the city limits. JLLB runs straight at it — this is the frontier the west will absorb next.'},
+
+ // ---- EAST ----
+ {n:'Dharmahusada Indah / Manyar Kertoarjo', x:112.770, lat:-7.267, v:4, r:1.5, from:1980, w:'East · Mulyorejo–Gubeng', land:'~Rp 13.5 jt/m²', house:'Rp 1.2 M – 8 M+', note:'The doctors\' belt. Walk to Unair and RSUD Dr. Soetomo; drive five minutes to Galaxy Mall. 1980s stock, increasingly bought to knock down. The most stable sub-market in Surabaya.'},
+ {n:'Klampis / Wisma Permai / Kertajaya Indah', x:112.775, lat:-7.281, v:4, r:1.4, from:1985, w:'East · Sukolilo', land:'Rp 11–17 jt/m²', house:'Rp 2 M – 5 M', note:'Solid professional middle-upper. Feeds ITS and Unair; heavy kost overlay at the edges.'},
+ {n:'Galaxy Bumi Permai / Araya / Regency 21', x:112.785, lat:-7.288, v:4, r:1.3, from:1990, w:'East · Sukolilo', land:'Rp 13–19 jt/m²', house:'Rp 3 M – 8 M', note:'Boulevard housing, the east\'s answer to Darmo Permai. Regency 21 and Puri Galaxy sit at the top of it.'},
+ {n:'Pakuwon City (ex-Laguna Indah)', x:112.800, lat:-7.266, v:5, r:2.0, from:1995, w:'East · Mulyorejo–Sukolilo', land:'~Rp 16 jt/m²', house:'Rp 1.95 M – 12.5 M', note:'Pakuwon\'s eastern kota mandiri, built on the old Laguna Indah tambak. San Diego, Grand Island, Long Beach, Virginia Regency, Villa Westwood. The widest price ladder of any estate in the city — a Rp 2 M starter and a Rp 12.5 M marble villa behind the same gate. Sea breeze off the Madura Strait is genuinely in the sales pitch.'},
+ {n:'Mulyosari / Sutorejo / Kalijudan', x:112.790, lat:-7.265, v:3, r:1.5, from:1985, w:'East · Mulyorejo', land:'Rp 9–15 jt/m²', house:'Rp 1.2 M – 2.6 M', note:'Comfortable, green, unglamorous east-side middle class. Excellent value per rupiah and the reason people say the east is "more kekeluargaan" than the west.'},
+ {n:'Sukolilo / Keputih / Gebang', x:112.800, lat:-7.293, v:3, r:1.6, from:1990, w:'East · Sukolilo', land:'Rp 8–14 jt/m²', house:'Rp 1.5 M – 2.5 M', note:'ITS\'s hinterland. The purest kost economy in Surabaya — best rental yields, weakest capital gain. Also carries historic kumuh pockets (Keputih, Gebang Putih) that the 2004 RTRW flagged and that the campus boom has partly displaced.'},
+ {n:'Rungkut / SIER / Penjaringan Sari', x:112.775, lat:-7.330, v:2, r:1.8, from:1975, w:'South-east · Rungkut', land:'Rp 6–11 jt/m²', house:'Rp 800 jt – 1.8 M', note:'Built around the Surabaya Industrial Estate Rungkut. Worker housing, contract-kost, rusunawa at Penjaringan Sari. Function, not aspiration.'},
+ {n:'Gunung Anyar / Medokan Ayu', x:112.795, lat:-7.340, v:3, r:1.5, from:2005, w:'South-east · Gunung Anyar–Rungkut', land:'Rp 7–12 jt/m²', house:'Rp 1 M – 2 M', note:'The OERR bet. Cheapest growth land in the east, best percentage upside, thinnest resale market, and the flood exposure the DPRD has warned about if reclamation changes the drainage.'},
+ {n:'MERR corridor (Ir. Soekarno)', x:112.782, lat:-7.305, v:3, r:0.9, from:2010, w:'East · spine', land:'Rp 12–20 jt/m²', house:'apartments', note:'The vertical spine. Klaska-type apartment product, campus-adjacent. Underwrite as rental yield, not capital gain — Surabaya\'s apartment market has never rewarded the latter.'},
+
+ // ---- SOUTH ----
+ {n:'Jemursari / Margorejo / Tenggilis', x:112.742, lat:-7.322, v:3, r:1.5, from:1980, w:'South · Wonocolo–Tenggilis', land:'Rp 9–15 jt/m²', house:'Rp 1.3 M – 3 M', note:'The A. Yani-adjacent middle class. Unremarkable and extremely liveable; the quiet default for a Surabaya family that doesn\'t want to argue about east versus west.'},
+ {n:'Gayungan / Ketintang / Dukuh Menanggal', x:112.722, lat:-7.331, v:3, r:1.4, from:1985, w:'South · Gayungan', land:'Rp 8–14 jt/m²', house:'Rp 1.2 M – 2.5 M', note:'Masjid Al-Akbar, the A. Yani frontage, UNESA Ketintang. Recorded the <em>lowest</em> poverty count of any kecamatan in 2023. Rusunawa at Dukuh Menanggal.'},
+ {n:'Wonokromo / Jagir / Ngagel', x:112.737, lat:-7.302, v:2, r:1.5, from:1900, w:'South · Wonokromo', land:'Rp 7–13 jt/m²', house:'Rp 800 jt – 1.6 M', note:'Dense riverside kampung on the Kalimas/Wonokromo split, with high poverty despite the central location. Where the KIP kampung-improvement tradition Surabaya is famous for did most of its work.'},
+ {n:'Siwalankerto', x:112.735, lat:-7.340, v:2, r:0.9, from:1990, w:'South · Wonocolo', land:'Rp 7–12 jt/m²', house:'Rp 900 jt – 1.6 M', note:'Petra\'s student belt. Kost, kost, kost.'},
+
+ // ---- METRO ----
+ {n:'Waru / Pondok Tjandra / Delta Sari / Rewwin', x:112.760, lat:-7.360, v:3, r:1.8, from:1985, w:'Metro · Sidoarjo', land:'Rp 8–14 jt/m²', house:'Rp 1.2 M – 3 M', note:'The original commuter belt, and still the best-established. Technically Sidoarjo; functionally Surabaya. Close to Juanda.'},
+ {n:'Driyorejo / Menganti (Gresik)', x:112.630, lat:-7.352, v:2, r:1.7, from:2000, w:'Metro · Gresik', land:'Rp 4–8 jt/m²', house:'Rp 600 jt – 1.3 M', note:'The cheapest exit from the city, fed by the Driyorejo toll and JLLB. Satellite imagery shows the sharpest 2010–2020 land-use conversion right along this border — this is where Surabaya\'s next million people are actually going.'},
+
+ // ---- GREEN ----
+ {n:'Pamurbaya mangrove (Wonorejo–Gunung Anyar Tambak)', x:112.822, lat:-7.315, v:'g', r:2.2, from:1743, w:'East coast · protected', land:'conservation', house:'—', note:'Protected mangrove and traditional fishing ground under Perda Kota Surabaya 12/2014. It is also, inconveniently, the coastline the Surabaya Waterfront Land reclamation is drawn on top of. The whole eastern future of this map hangs on this conflict.'},
+
+ // ---- FUTURE ----
+ {n:'Surabaya Waterfront Land (proposed)', x:112.840, lat:-7.255, v:'f', r:2.4, from:2035, w:'Reclamation · Kenjeran → Gunung Anyar Tambak', land:'—', house:'villa estate, apartments, ruko (planned)', note:'1,084–1,184 ha across four artificial islands. ~Rp 72 trillion. PT Granting Jaya. PSN status granted April 2024. ~20-year programme, 15 of them just reclamation. Conflicts with the city and provincial spatial plans; opposed by fishing communities across twelve kelurahan; still under marine-spatial evaluation in 2026. Treat as an option, not a plan.'},
+ {n:'JLLB west corridor (extension)', x:112.628, lat:-7.278, v:'f', r:1.9, from:2035, w:'West · Benowo–Pakal–Sambikerep', land:'—', house:'CitraLand\'s next ~1,400 ha', note:'Ciputra is explicit that CitraLand extends west and north from here. The JLLB and Radial Road are the mechanism. Highest-confidence forecast on this map.'},
+ {n:'OERR / JLLT east corridor', x:112.812, lat:-7.348, v:'f', r:1.6, from:2035, w:'East · Gunung Anyar–Medokan', land:'—', house:'—', note:'The eastern outer ring. Opens the southern tambak belt to development and re-rates Gunung Anyar. Also the drainage question the DPRD keeps raising.'}
+];
+
+const ERAS = [
+  {y:1900, t:'The river mouth. Everything is within a kilometre of the Kalimas estuary, and the Dutch wijkenstelsel has hard-zoned it by race since 1843 — European, Chinese, Arab, Malay, kampung.'},
+  {y:1940, t:'The southward move. Ketabang is master-planned from 1916; Darmo becomes the European garden suburb. The prestige axis rotates from the river to Jalan Raya Darmo — the last time the state, not a developer, decides where the rich live.'},
+  {y:1975, t:'Independence, industry, and the first suburbs. SIER opens the industrial east; Darmo Permai opens the west. Private developers take over the sorting.'},
+  {y:1995, t:'The land grab. Graha Famili (1991), Bukit Darmo Golf (1991), Pakuwon Indah (1993), CitraLand (1993). Ciputra opens the golf course in Nov 1995 and starts building a city around it. Pakuwon takes the eastern tambak.'},
+  {y:2010, t:'Consolidation and infill. CitraLand and Pakuwon City mature; the middle class spills into Wiyung, Gunung Anyar, Rungkut — and over the border into Sidoarjo and Gresik.'},
+  {y:2026, t:'Today. Two developers set the price of prestige. Bukit Telaga Golf sits at the top of the western township ladder. The index is flat, supply exceeds demand, and the real growth is happening outside the city limits.'},
+  {y:2045, t:'The drawn future. JLLB pushes CitraLand west into Benowo. OERR opens the eastern tambak. And 1,084 hectares of contested sand may or may not appear off Kenjeran.'}
+];
+
+/* ---------------- projection ---------------- */
+const W=1000,H=780;
+const LON0=112.588, LON1=112.862, LAT0=-7.165, LAT1=-7.398;
+const px = lon => (lon-LON0)/(LON1-LON0)*W;
+const py = lat => (LAT0-lat)/(LAT0-LAT1)*H;
+const KM = H/((LAT0-LAT1)*111);   // px per km
+
+const COAST = [
+ [-7.198,112.628],[-7.192,112.665],[-7.186,112.700],[-7.188,112.722],[-7.196,112.742],
+ [-7.198,112.762],[-7.208,112.784],[-7.222,112.800],[-7.238,112.815],[-7.262,112.822],
+ [-7.292,112.830],[-7.318,112.834],[-7.342,112.826],[-7.356,112.808],[-7.362,112.782],
+ [-7.356,112.756],[-7.350,112.730],[-7.352,112.706],[-7.346,112.678],[-7.340,112.652],
+ [-7.322,112.632],[-7.300,112.618],[-7.276,112.606],[-7.250,112.600],[-7.226,112.602],
+ [-7.208,112.612]
+];
+
+const svg = document.getElementById('map');
+const NS='http://www.w3.org/2000/svg';
+const el=(t,a={})=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+// defs: hatch for green
+const defs=el('defs');
+defs.innerHTML = `<pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+  <rect width="7" height="7" fill="#12312a"/><line x1="0" y1="0" x2="0" y2="7" stroke="#2E6B4F" stroke-width="2.5"/></pattern>
+  <filter id="glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+svg.appendChild(defs);
+
+// sea + land
+svg.appendChild(el('rect',{x:0,y:0,width:W,height:H,class:'sea'}));
+svg.appendChild(el('path',{d:'M'+COAST.map(p=>px(p[1]).toFixed(1)+','+py(p[0]).toFixed(1)).join(' L')+' Z',class:'coastline'}));
+
+// Madura strait label
+const st=el('text',{x:880,y:60,class:'roadlab','text-anchor':'middle'});st.textContent='SELAT MADURA';svg.appendChild(st);
+const gr=el('text',{x:70,y:520,class:'roadlab'});gr.textContent='GRESIK';svg.appendChild(gr);
+const sd=el('text',{x:640,y:760,class:'roadlab'});sd.textContent='SIDOARJO  ·  JUANDA';svg.appendChild(sd);
+
+// schematic infrastructure lines
+const road=(pts,lab,lx,ly)=>{
+  svg.appendChild(el('path',{d:'M'+pts.map(p=>px(p[1]).toFixed(1)+','+py(p[0]).toFixed(1)).join(' L'),class:'roadline'}));
+  if(lab){const t=el('text',{x:px(lx),y:py(ly),class:'roadlab'});t.textContent=lab;svg.appendChild(t);}
+};
+road([[-7.196,112.740],[-7.230,112.738],[-7.262,112.740],[-7.300,112.732],[-7.340,112.726],[-7.365,112.730]],'A. YANI / KALIMAS AXIS',112.700,-7.372);
+road([[-7.240,112.788],[-7.280,112.783],[-7.320,112.780],[-7.352,112.782]],'MERR',112.792,-7.356);
+road([[-7.208,112.618],[-7.250,112.630],[-7.290,112.640],[-7.330,112.660],[-7.350,112.690]],'JLLB',112.606,-7.222);
+road([[-7.250,112.812],[-7.300,112.822],[-7.345,112.818]],'OERR',112.828,-7.246);
+road([[-7.186,112.775],[-7.212,112.784]],'SURAMADU',112.760,-7.182);
+
+const gZones=el('g'); svg.appendChild(gZones);
+const gLab=el('g'); svg.appendChild(gLab);
+
+const side={n:document.getElementById('s-name'),k:document.getElementById('s-kv'),c:document.getElementById('s-chips'),p:document.getElementById('s-note'),pr:document.getElementById('s-price')};
+const active = new Set([1,2,3,4,5,'g','f']);
+let era = 5;
+
+function fill(z){ return z.v==='g' ? 'url(#hatch)' : z.v==='f' ? 'none' : V[z.v]; }
+function stroke(z){ return z.v==='g' ? '#2E6B4F' : z.v==='f' ? 'var(--future)' : (z.btg?'#FFE7A3':'#0B1A21'); }
+
+function render(){
+  gZones.innerHTML=''; gLab.innerHTML='';
+  const year = ERAS[era].y;
+  const vis = Z.filter(z => z.from <= year && active.has(z.v));
+  // draw big first so small labels sit on top
+  vis.slice().sort((a,b)=>b.r-a.r).forEach(z=>{
+    const g=el('g',{class:'zone',tabindex:0,role:'button','aria-label':z.n});
+    const c=el('circle',{
+      cx:px(z.x).toFixed(1), cy:py(z.lat).toFixed(1), r:(z.r*KM).toFixed(1),
+      fill:fill(z), 'fill-opacity': z.v==='f'?0:(z.v==='g'?0.5:0.42),
+      stroke:stroke(z), 'stroke-width': z.btg?2.4:(z.v==='f'?1.6:1),
+      'stroke-dasharray': z.v==='f'?'6 5':'none',
+      'stroke-opacity': z.btg?1:0.8
+    });
+    if(z.btg) c.setAttribute('filter','url(#glow)');
+    g.appendChild(c);
+    g.addEventListener('click',()=>show(z));
+    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show(z);}});
+    g.addEventListener('mouseenter',()=>c.setAttribute('fill-opacity', z.v==='f'?0.12:0.68));
+    g.addEventListener('mouseleave',()=>c.setAttribute('fill-opacity', z.v==='f'?0:(z.v==='g'?0.5:0.42)));
+    gZones.appendChild(g);
+  });
+  vis.forEach(z=>{
+    const t=el('text',{x:px(z.x).toFixed(1), y:(py(z.lat)+ (z.btg? -z.r*KM-8 : 3)).toFixed(1),
+      class:'zlabel'+(z.r<1.2&&!z.btg?' sm':''), 'text-anchor':'middle'});
+    t.textContent = z.btg ? '★ BUKIT TELAGA GOLF' : z.n.replace(/ \(.*\)/,'').split(' / ')[0];
+    if(z.btg) t.setAttribute('fill','#FFE7A3');
+    gLab.appendChild(t);
+  });
+  document.getElementById('eraYear').textContent = year;
+  document.getElementById('eraNote').textContent = ERAS[era].t;
+}
+
+function show(z){
+  side.n.textContent=z.n;
+  side.k.textContent=z.w;
+  side.c.innerHTML='';
+  const band = z.v==='g'?'Conservation':z.v==='f'?'Proposed / planned':VNAME[z.v];
+  [band, z.from<1800?'pre-colonial core':'from '+z.from].forEach(x=>{
+    const s=document.createElement('span');s.className='chip';s.textContent=x;side.c.appendChild(s);
+  });
+  side.p.innerHTML=z.note;
+  side.pr.innerHTML = (z.land&&z.land!=='—'?'<div>LAND &nbsp;'+z.land+'</div>':'') + (z.house&&z.house!=='—'?'<div>HOUSE &nbsp;'+z.house+'</div>':'');
+}
+
+/* legend */
+const lgWrap=document.getElementById('legend');
+[[5,'Prime'],[4,'Upper'],[3,'Middle'],[2,'Working'],[1,'Low-income'],['g','Conservation'],['f','Proposed']].forEach(([k,label])=>{
+  const b=document.createElement('button');
+  b.className='lg'; b.setAttribute('aria-pressed','true');
+  const sw=document.createElement('span'); sw.className='sw';
+  sw.style.background = k==='g'?'var(--green)': k==='f'?'transparent':V[k];
+  if(k==='f'){sw.style.border='1.5px dashed var(--future)';}
+  b.appendChild(sw); b.appendChild(document.createTextNode(label.toUpperCase()));
+  b.onclick=()=>{
+    const on=b.getAttribute('aria-pressed')==='true';
+    b.setAttribute('aria-pressed', on?'false':'true');
+    on?active.delete(k):active.add(k);
+    render();
+  };
+  lgWrap.appendChild(b);
+});
+
+document.getElementById('eraSlider').addEventListener('input',e=>{era=+e.target.value;render();});
+render();
+show(Z.find(z=>z.btg));
+
+/* ---------------- BTG comparison bars ---------------- */
+const CMP=[
+ {n:'Darmo (arterial)',       lo:40, hi:80, note:'Rp 40–80 jt/m² · colonial villas'},
+ {n:'HR Muhammad CBD',        lo:25, hi:45, note:'Rp 25–45 jt/m² · high-rise'},
+ {n:'Graha Famili',           lo:20, hi:26, note:'Rp 20–26 jt/m² · houses Rp 11 M+'},
+ {n:'Bukit Darmo Golf',       lo:18, hi:25, note:'Rp 18–25 jt/m²'},
+ {n:'Pakuwon Indah',          lo:15, hi:25, note:'Rp 15–25 jt/m²'},
+ {n:'Pakuwon City',           lo:13, hi:19, note:'~Rp 16 jt/m² · Rp 2 M–12.5 M'},
+ {n:'Dharmahusada Indah',     lo:11, hi:16, note:'~Rp 13.5 jt/m²'},
+ {n:'Bukit Telaga Golf',      lo:8.9, hi:14, note:'Rp 8.9–14 jt/m² · Rp 9.3 M–22 M', hi_light:true},
+ {n:'Wiyung / Royal Res.',    lo:10, hi:16, note:'Rp 10–16 jt/m²'},
+ {n:'Gunung Anyar (OERR)',    lo:7,  hi:12, note:'Rp 7–12 jt/m²'},
+ {n:'Kebraon / Karangpilang', lo:6,  hi:10, note:'Rp 6–10 jt/m²'},
+ {n:'Semampir / N. coast',    lo:3,  hi:7,  note:'Rp 3–7 jt/m²'}
+];
+const MAXV=80;
+const barsEl=document.getElementById('bars');
+CMP.forEach(c=>{
+  const row=document.createElement('div'); row.className='bar'+(c.hi_light?' hi':'');
+  row.innerHTML = `<div class="nm">${c.n}</div>
+    <div class="track"><div class="fill" style="left:${(c.lo/MAXV*100).toFixed(1)}%;width:${((c.hi-c.lo)/MAXV*100).toFixed(1)}%;background:${c.hi_light?'var(--btg)':'linear-gradient(90deg,var(--v4),var(--v5))'}"></div></div>
+    <div class="val">${c.note}</div>`;
+  barsEl.appendChild(row);
+});
+const cap=document.createElement('p');
+cap.style.cssText='font-size:13px;color:var(--muted2);margin-top:14px';
+cap.textContent='Indicative land bands, mid-2026 asking data. Note what this shows: BTG is not the most expensive land in Surabaya per square metre — it is mid-pack among prime estates. What makes it a Rp 9–22 M house is plot size (180–670 m²) and build (up to 1,200 m²), not land price. That is a meaningfully different asset from a Darmo villa, and it should be underwritten differently.';
+barsEl.appendChild(cap);
+</script>
